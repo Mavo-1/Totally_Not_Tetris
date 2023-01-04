@@ -1,4 +1,3 @@
-//Forcing js into strict mode
 'use strict';
 
 const COLS = 10;
@@ -59,9 +58,7 @@ const POINTS = {
   DOUBLE: 300,
   TRIPLE: 500,
   TETRIS: 800,
-  //multiplers
   SOFT_DROP: 1,
-  //spacebar drop
   HARD_DROP: 2,
 }
 Object.freeze(POINTS);

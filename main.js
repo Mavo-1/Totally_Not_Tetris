@@ -1,7 +1,7 @@
-const canvas = document.getElementById('board');
+const canvas = document.getElementById('board')
 const ctx = canvas.getContext('2d')
-const canvasNext = document.getElementById('next');
-const ctxNext = canvas.getContext('2d')
+const canvasNext = document.getElementById('next')
+const ctxNext = canvasNext.getContext('2d')
 
 let accountValues = {
     score: 0,
@@ -9,19 +9,19 @@ let accountValues = {
     lines: 0
 }
 
-function updateAccount(key,value){
-    let element = getElementById(key)
-    if(element){
+function updateAccount(key,value) {
+    let element = document.getElementById(key)
+    if (element) {
         element.textContent = value
     }
 }
 
-let account = new Proxy(accountValues,{
-   set:(target, key, value) => {
-    target[key] = value
-    updateAccount(key,value)
-    return true
-   } 
+let account = new Proxy(accountValues, {
+    set: (target, key, value) => {
+        target[key] = value
+        updateAccount(key,value)
+        return true
+    }
 })
 
 let requestId;
@@ -30,96 +30,94 @@ const moves = {
     [KEY.LEFT]:  p => ({ ...p, x: p.x - 1 }),
     [KEY.RIGHT]: p => ({ ...p, x: p.x + 1 }),
     [KEY.DOWN]:    p => ({ ...p, y: p.y + 1 }),
-    [KEY.SPACE]:    p => ({ ...p, y: p.y + 1 }),
-    [KEY.UP]: (p) => board.rotate(p)
-
-}
+    [KEY.SPACE]: p => ({ ...p, y: p.y + 1 }),
+    [KEY.UP]: p => board.rotate(p)
+  };
 
 let board = new Board(ctx, ctxNext)
 addEventListener()
 initNext()
 
-function initNext(){
-    ctxNext.canvas.width= 4* BLOCK_SIZE
-    ctxNext.canvas.height= 4* BLOCK_SIZE
-    ctx.Next.scale(BLOCK_SIZE,BLOCK_SIZE)
+function initNext() {
+    ctxNext.canvas.width = 4 * BLOCK_SIZE
+    ctxNext.canvas.height = 4 * BLOCK_SIZE
+    ctxNext.scale(BLOCK_SIZE,BLOCK_SIZE)
 }
 
-function addEventListener(){
+function addEventListener() {
     document.addEventListener('keydown', event => {
-        if(event.keyCode === KEY.P){
-            pause()
-        }if(event.keyCode === KEY.P){
+        if(event.keyCode === KEY.P) {
+           pause()
+        }
+        if(event.keyCode === KEY.ESC) {
             gameOver()
-        }else if (moves[event.keyCode]){
-            event.preventDefault()
-        
+        } else if(moves[event.keyCode]) {
+        event.preventDefault()
 
         let p = moves[event.keyCode](board.piece);
 
         if (event.keyCode === KEY.SPACE) {
             // Hard drop
             while (board.valid(p)) {
-                account.score += POINTSS.HARD_DROP
+                account.score += POINTS.HARD_DROP
               board.piece.move(p);   
               p = moves[KEY.DOWN](board.piece);
             }
-        }
-            else if (board.valid(p)){
-                board.piece.move(p);
-                if(event.keyCode === KEY.DOWN){
-                    account.score += POINTS.SOFT_DROP
-                }
+          }
+          else if (board.valid(p)) {
+            board.piece.move(p);
+            if (event.keyCode === KEY.DOWN) {
+                account.score += POINTS.SOFT_DROP
             }
+          }
     }
 })
 }
 
-function resetGame(){
-    account.score = 0,
-    account.lines = 0,
-    account.level = 0,
+function resetGame() {
+    account.score = 0
+    account.lines = 0
+    account.level =0
     board.reset()
-    time = {start: 0, elapsed: 0, level: LEVEL[accountValues.level]}
+    time = {start: 0, elapsed: 0, level: LEVEL[account.level]}
 }
 
-function play(){
+function play() {
     resetGame()
-        time.start = performance.now()
-        if(requestId){
-            cancelAnimationFrame(requestId)
-        
+    time.start = performance.now()
+    if(requestId) {
+        cancelAnimationFrame(requestId)
     }
 
     animate()
 }
 
-function animate(){
-    time.elapsed = now -time.start
-    if(time.elapsed > time.level){
+function animate(now = 0) {
+    time.elapsed = now - time.start
+    if (time.elapsed > time.level) {
         time.start = now
-        if(!board.drop()){
+        if (!board.drop()) {
             gameOver()
             return
         }
     }
-    ctx.clearRect(0,0, ctx.canvas.width, ctx.canvas.height)
+
+    ctx.clearRect(0,0, ctx.canvas.width,ctx.canvas.height)
     board.draw()
     requestId = requestAnimationFrame(animate)
 }
 
-
-function gameOver(){
+function gameOver() {
     cancelAnimationFrame(requestId)
     ctx.fillStyle = 'black'
     ctx.fillRect(1,3,8,1.2)
     ctx.font = '1px Arial'
     ctx.fillStyle = 'red'
-    ctx.fillText('Game Over',1.8,4)
+    ctx.fillText('Game Over', 1.8, 4)
 }
 
-function pause(){
-    if(!requestId){
+function pause() {
+    if(!requestId) {
         animate();
         return
     }
@@ -130,8 +128,5 @@ function pause(){
     ctx.fillRect(1,3,8,1.2)
     ctx.font = '1px Arial'
     ctx.fillStyle = 'yellow'
-    ctx.fillText('PAUSED',3,4)
+    ctx.fillText('PAUSED', 3, 4)
 }
-
-
-
