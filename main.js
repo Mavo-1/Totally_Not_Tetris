@@ -26,6 +26,15 @@ let account = new Proxy(accountValues,{
 
 let requestId;
 
+const moves = {
+    [KEY.LEFT]:  p => ({ ...p, x: p.x - 1 }),
+    [KEY.RIGHT]: p => ({ ...p, x: p.x + 1 }),
+    [KEY.DOWN]:    p => ({ ...p, y: p.y + 1 }),
+    [KEY.SPACE]:    p => ({ ...p, y: p.y + 1 }),
+    [KEY.UP]: (p) => board.rotate(p)
+
+}
+
 let board = new Board(ctx, ctxNext)
 addEventListener()
 initNext()
@@ -34,25 +43,6 @@ function initNext(){
     ctxNext.canvas.width= 4* BLOCK_SIZE
     ctxNext.canvas.height= 4* BLOCK_SIZE
     ctx.Next.scale(BLOCK_SIZE,BLOCK_SIZE)
-}
-
-
-function play(){
-    resetGame()
-        time.start = performance.now()
-        if(requestId){
-            cancelAnimationFrame(requestId)
-        
-    }
-}
-
-const moves = {
-    [KEY.LEFT]:  p => ({ ...p, x: p.x - 1 }),
-    [KEY.RIGHT]: p => ({ ...p, x: p.x + 1 }),
-    [KEY.DOWN]:    p => ({ ...p, y: p.y + 1 }),
-    [KEY.SPACE]:    p => ({ ...p, y: p.y + 1 }),
-    [KEY.UP]: (p) => board.rotate(p)
-
 }
 
 function addEventListener(){
@@ -92,3 +82,56 @@ function resetGame(){
     board.reset()
     time = {start: 0, elapsed: 0, level: LEVEL[accountValues.level]}
 }
+
+function play(){
+    resetGame()
+        time.start = performance.now()
+        if(requestId){
+            cancelAnimationFrame(requestId)
+        
+    }
+
+    animate()
+}
+
+function animate(){
+    time.elapsed = now -time.start
+    if(time.elapsed > time.level){
+        time.start = now
+        if(!board.drop()){
+            gameOver()
+            return
+        }
+    }
+    ctx.clearRect(0,0, ctx.canvas.width, ctx.canvas.height)
+    board.draw()
+    requestId = requestAnimationFrame(animate)
+}
+
+
+function gameOver(){
+    cancelAnimationFrame(requestId)
+    ctx.fillStyle = 'black'
+    ctx.fillRect(1,3,8,1.2)
+    ctx.font = '1px Arial'
+    ctx.fillStyle = 'red'
+    ctx.fillText('Game Over',1.8,4)
+}
+
+function pause(){
+    if(!requestId){
+        animate();
+        return
+    }
+
+    cancelAnimationFrame(requestId)
+    requestId = null
+    ctx.fillStyle = 'black'
+    ctx.fillRect(1,3,8,1.2)
+    ctx.font = '1px Arial'
+    ctx.fillStyle = 'yellow'
+    ctx.fillText('PAUSED',3,4)
+}
+
+
+
