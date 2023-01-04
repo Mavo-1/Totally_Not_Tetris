@@ -3,16 +3,47 @@ const ctx = canvas.getContext('2d')
 const canvasNext = document.getElementById('next');
 const ctxNext = canvas.getContext('2d')
 
+let accountValues = {
+    score: 0,
+    level: 0,
+    lines: 0
+}
 
+function updateAccount(key,value){
+    let element = getElementById(key)
+    if(element){
+        element.textContent = value
+    }
+}
 
-let board = new Board();
+let account = new Proxy(accountValues,{
+   set:(target, key, value) => {
+    target[key] = value
+    updateAccount(key,value)
+    return true
+   } 
+})
+
+let requestId;
+
+let board = new Board(ctx, ctxNext)
+addEventListener()
+initNext()
+
+function initNext(){
+    ctxNext.canvas.width= 4* BLOCK_SIZE
+    ctxNext.canvas.height= 4* BLOCK_SIZE
+    ctx.Next.scale(BLOCK_SIZE,BLOCK_SIZE)
+}
+
 
 function play(){
-    board.reset();
-    let piece = new Piece(ctx);
-    piece.draw()
-
-    board.piece = piece
+    resetGame()
+        time.start = performance.now()
+        if(requestId){
+            cancelAnimationFrame(re)
+        
+    }
 }
 
 const moves = {
@@ -24,24 +55,40 @@ const moves = {
 
 }
 
-document.addEventListener('keydown', event => {
-    if(moves [event.keyCode]){
-        event.preventDefault();
+function addEventListener(){
+    document.addEventListener('keydown', event => {
+        if(event.keyCode === KEY.P){
+            pause()
+        }if(event.keyCode === KEY.P){
+            gameOver()
+        }else if (moves[event.keyCode]){
+            event.preventDefault()
+        
 
         let p = moves[event.keyCode](board.piece);
 
         if (event.keyCode === KEY.SPACE) {
             // Hard drop
             while (board.valid(p)) {
+                account.score += POINTSS.HARD_DROP
               board.piece.move(p);   
               p = moves[KEY.DOWN](board.piece);
             }
         }
             else if (board.valid(p)){
                 board.piece.move(p);
+                if(event.keyCode === KEY.DOWN){
+                    account.score += POINTS.SOFT_DROP
+                }
             }
-       ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
-
-       board.piece.draw()
     }
 })
+}
+
+function resetGame(){
+    account.score = 0,
+    account.lines = 0,
+    account.level = 0,
+    board.reset()
+    time = {start: 0, elapsed: 0, level: LEVEL[accountValues.level]}
+}
