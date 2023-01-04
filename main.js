@@ -41,7 +41,7 @@ function play(){
     resetGame()
         time.start = performance.now()
         if(requestId){
-            cancelAnimationFrame(re)
+            cancelAnimationFrame(requestId)
         
     }
 }
